@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+    <MASTERLANG>F</MASTERLANG>
+    <STEXT>Messages pour application Fiori PO Good Receipt</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>OData: Clé sur entité &amp;1 manquante ou incorrecte</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Date comptable obligatoire</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>La quantité à la réception ne peut pas être nulle</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Aucun poste sélectionné/renseignée pour la commande d&apos;achat &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>Aucune donnée d&apos;entête reçue pour la commande d&apos;achat &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>OData: Numéro de CA &amp;1 différent du numéro de CA source &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Entrée de marchandise sur CA &amp;1 effectuée avec succès (N°Doc &amp;2)</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>Commande d&apos;achat &amp;1 non trouvée</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+    <LANGU>F</LANGU>
+    <DESCRIPT>Fiori App Good Receipt : Helper class for OData operations</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>FIX_DATE</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Force la date à 00000000 si nécessaire (workaround)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>GET_BATCHES_SH_DATA</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Get Batch search help data</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>GET_PLANTS_SH_DATA</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Get Plant search help data</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>GET_PURCHASE_ORDERS_SH_DATA</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Get Purchase Orders search help data</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>GET_PURCHASE_ORDER_DATA</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Get Purchase Order data</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>GET_PURCHASE_ORDER_ITEMS_DATA</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Get Purchase Orders Items data</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>GET_STORAGE_LOCATIONS_SH_DATA</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Get Storage Location search help data</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_ODATA_HELPER</CLSNAME>
+     <CMPNAME>SEL_OPT_CONVERSION_MATN1_INPUT</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Perform MATN1 Inbound Conversion on Select Options</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

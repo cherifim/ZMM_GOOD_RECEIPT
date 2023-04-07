@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+    <LANGU>F</LANGU>
+    <DESCRIPT>Data Provider Secondary Class</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>ADD_MESSAGES_FROM_BAPI</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Ajoute des messages à partie des messages de BAPI</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>APPLY_SORTERS</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Applique les tris sur les entités</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>GET_ENTITY_KEY</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Retourne la clé de l&apos;entité en cours (passé via URL)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>GET_ENTITY_KEY_FROM_CONTEXT</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Retourne la clé de l&apos;entité dans une requête donnée</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>GET_ENTITY_PROPERTIES</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Retourne les propriétés de l&apos;entité en cours</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>PROCESS_MIGO_CHANGESET</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Valider les données d&apos;entrée et exécuter l&apos;entrée de march.</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_ZMM_PO_GOOD_RECEIP_DPC_EXT</CLSNAME>
+     <CMPNAME>RAISE_BUSI_EXCEPTION_FROM_BAPI</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Raise an exception from BAPI messages</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

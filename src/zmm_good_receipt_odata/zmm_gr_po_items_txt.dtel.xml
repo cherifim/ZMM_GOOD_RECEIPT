@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_DTEL" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD04V>
+    <ROLLNAME>ZMM_GR_PO_ITEMS_TXT</ROLLNAME>
+    <DDLANGUAGE>F</DDLANGUAGE>
+    <DOMNAME>STRING</DOMNAME>
+    <HEADLEN>20</HEADLEN>
+    <SCRLEN1>10</SCRLEN1>
+    <SCRLEN2>18</SCRLEN2>
+    <SCRLEN3>40</SCRLEN3>
+    <DDTEXT>Texte de postes de la commande d&apos;achat</DDTEXT>
+    <REPTEXT>Texte poste PO</REPTEXT>
+    <SCRTEXT_S>Texte post</SCRTEXT_S>
+    <SCRTEXT_M>Texte poste PO</SCRTEXT_M>
+    <SCRTEXT_L>Texte poste de la commande d&apos;achat</SCRTEXT_L>
+    <DTELMASTER>F</DTELMASTER>
+    <REFKIND>D</REFKIND>
+   </DD04V>
+  </asx:values>
+ </asx:abap>
+</abapGit>
