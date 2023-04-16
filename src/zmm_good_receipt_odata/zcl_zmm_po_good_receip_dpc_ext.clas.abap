@@ -58,7 +58,7 @@ protected section.
       !IV_ENTITY_TYPE type STRING optional
       !IT_KEY_TAB type /IWBEP/T_MGW_NAME_VALUE_PAIR optional
       !IV_ADD_TO_RESPONSE_HEADER type /IWBEP/SUP_MC_ADD_TO_RESPONSE default ABAP_TRUE
-      !IV_IS_LEADING_MESSAGE type BOOLEAN default ABAP_TRUE
+      !IV_IS_LEADING_MESSAGE type BOOLEAN default ABAP_FALSE
       !IO_MESSAGE_CONTAINER type ref to /IWBEP/IF_MESSAGE_CONTAINER
       !IO_REQUEST_CONTEXT type ref to /IWBEP/CL_MGW_REQUEST optional
       !IV_TRANSIENT type BOOLEAN default ABAP_FALSE .
@@ -297,6 +297,12 @@ METHOD add_messages_from_bapi.
       lv_message_target = '/#TRANSIENT#' && lv_message_target.   "Same effect as setting parameter iv_is_transition_message to ABAP_TRUE in more recent versions
     ENDIF.
 
+    DATA(lv_is_leading_message) = iv_is_leading_message.
+    "By default, first message of container is the leading message
+    IF iv_is_leading_message IS NOT SUPPLIED AND io_message_container->get_messages( ) IS INITIAL.
+      lv_is_leading_message = abap_true.
+    ENDIF.
+
     io_message_container->add_message(
         iv_msg_type               = <bapi_message>-type
         iv_msg_id                 = <bapi_message>-id
@@ -306,7 +312,7 @@ METHOD add_messages_from_bapi.
         iv_msg_v2                 = <bapi_message>-message_v2
         iv_msg_v3                 = <bapi_message>-message_v3
         iv_msg_v4                 = <bapi_message>-message_v4
-        iv_is_leading_message     = iv_is_leading_message
+        iv_is_leading_message     = lv_is_leading_message
         iv_add_to_response_header = iv_add_to_response_header
         iv_entity_type            = iv_entity_type
         it_key_tab                = it_key_tab[]
@@ -741,7 +747,9 @@ METHOD process_migo_changeset.
     LOOP AT it_file_uploads[] ASSIGNING <file_upload> WHERE data-purchase_order_number = <po_header>-data-purchase_order_number.
       APPEND VALUE #( file_name    = <file_upload>-data-file_name
                       file_content = <file_upload>-data-file_content
-                      mime_type    = <file_upload>-data-mime_type ) TO <po_input>-files[].
+                      mime_type    = <file_upload>-data-mime_type
+                      is_url       = <file_upload>-data-is_url
+                      url          = <file_upload>-data-url ) TO <po_input>-files[].
     ENDLOOP.
 
   ENDLOOP.
@@ -763,10 +771,16 @@ METHOD process_migo_changeset.
       <return>-field = 'PURCHASE_ORDER_NUMBER'.
     ENDLOOP.
 
+    IF line_exists( lt_return[ TYPE = 'E' ] ).
+      DATA(lv_transient) = abap_false. "Non-Persistent message
+    ELSE.
+      lv_transient = abap_true. "Persistent message
+    ENDIF.
+
     me->add_messages_from_bapi( it_bapi_messages = lt_return[]
                                 io_message_container = lo_main_msg_container
                                 io_request_context  = lo_request_main_context
-                                iv_transient = abap_true ).
+                                iv_transient = lv_transient ).
 
     IF line_exists( lt_return[ type = 'E' ] ). "At least one error occured
       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception

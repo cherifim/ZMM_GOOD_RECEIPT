@@ -234,7 +234,7 @@ METHOD get_purchase_order_data.
   DELETE ADJACENT DUPLICATES FROM lt_delivery_addr_all[] COMPARING addr_no.
 
 
-  IF lines( lt_delivery_addr[] ) <= 1. "Une seule adresse trouvée pour tous les postes
+  IF lines( lt_delivery_addr_all[] ) <= 1. "Une seule adresse trouvée pour tous les postes
 
     result-unique_delivery_adr = abap_true.
 
@@ -306,7 +306,6 @@ METHOD get_purchase_order_items_data.
       po_item_account_assignment = lt_item_account_assignment[]
       po_item_texts              = lt_po_items_txts[].
 
-
   CHECK lt_po_items[] IS NOT INITIAL.
 
   "Selection de descriptions de certains objets (divisions/magasins/articles)
@@ -331,8 +330,7 @@ METHOD get_purchase_order_items_data.
     FOR ALL ENTRIES IN @lt_item_account_assignment[]
     WHERE kokrs = @lt_item_account_assignment-co_area AND
           kostl = @lt_item_account_assignment-cost_ctr AND
-          datbi > @sy-datum AND
-          spras = @sy-langu.
+          datbi > @sy-datum.
   SORT lt_cskt[] BY datbi ASCENDING.
 
   "Récupérer les lots pour chaque item
@@ -383,7 +381,9 @@ METHOD get_purchase_order_items_data.
       <result>-material_desc = <makt>-maktx.
     ELSE. "Non trouvé avec langue connexion -> essayer toute autre langue
       ASSIGN lt_makt[ matnr = <item>-material ] TO <makt>.
-      <result>-material_desc = <makt>-maktx.
+      IF sy-subrc = 0.
+        <result>-material_desc = <makt>-maktx.
+      ENDIF.
     ENDIF.
 
     <result>-purchase_order_quantity = <item>-quantity.
@@ -456,10 +456,20 @@ METHOD get_purchase_order_items_data.
       "Centre de coût
       IF <item_account_assign>-cost_ctr IS NOT INITIAL.
         <result>-cost_center = <item_account_assign>-cost_ctr.
-        ASSIGN lt_cskt[ kokrs = <item_account_assign>-co_area kostl = <item_account_assign>-cost_ctr ] TO FIELD-SYMBOL(<cskt>).
+        ASSIGN lt_cskt[ kokrs = <item_account_assign>-co_area
+                        kostl = <item_account_assign>-cost_ctr
+                        spras = sy-langu ] TO FIELD-SYMBOL(<cskt>).
         IF sy-subrc = 0.
           <result>-cost_center_name = <cskt>-ktext.
           <result>-cost_center_desc = <cskt>-ltext.
+        ELSE. "Non trouvé avec langue de connexion --> essayer avec toute autre langue
+          ASSIGN lt_cskt[ kokrs = <item_account_assign>-co_area
+                          kostl = <item_account_assign>-cost_ctr ] TO <cskt>.
+          IF sy-subrc = 0.
+            <result>-cost_center_name = <cskt>-ktext.
+            <result>-cost_center_desc = <cskt>-ltext.
+          ENDIF.
+
         ENDIF.
       ENDIF.
 

@@ -13,17 +13,16 @@ CLASS zcl_good_receipt_helper DEFINITION
       END OF tys_po_item_input .
     TYPES:
       tyt_po_item_input TYPE STANDARD TABLE OF tys_po_item_input WITH DEFAULT KEY .
-
     TYPES:
       BEGIN OF tys_po_file_upload,
         file_name    TYPE zmm_gr_file_name,
         file_content TYPE zmm_gr_file_content,
         mime_type    TYPE zmm_gr_file_mime_type,
-      END OF tys_po_file_upload.
-
+        is_url       TYPE zmm_gr_is_url,
+        url          TYPE zmm_gr_url,
+      END OF tys_po_file_upload .
     TYPES:
-      tyt_po_file_uploads TYPE STANDARD TABLE OF tys_po_file_upload WITH DEFAULT KEY.
-
+      tyt_po_file_uploads TYPE STANDARD TABLE OF tys_po_file_upload WITH DEFAULT KEY .
     TYPES:
       BEGIN OF tys_po_header_input,
         purchase_order_number TYPE ebeln,
@@ -49,6 +48,13 @@ CLASS zcl_good_receipt_helper DEFINITION
         !is_po_input  TYPE tys_po_header_input
       RETURNING
         VALUE(return) TYPE bapiret2_tt .
+    CLASS-METHODS attach_good_receipt_documents
+      IMPORTING
+        !iv_material_doc_number TYPE mblnr
+        !iv_material_doc_year   TYPE mjahr
+        !it_file_uploads        TYPE tyt_po_file_uploads
+      RETURNING
+        VALUE(return)           TYPE bapiret2_tt .
     CLASS-METHODS get_batches_for_items
       IMPORTING
         !it_items                    TYPE bapiekpo_tp
@@ -61,6 +67,207 @@ ENDCLASS.
 
 
 CLASS ZCL_GOOD_RECEIPT_HELPER IMPLEMENTATION.
+
+
+METHOD attach_good_receipt_documents.
+*______________________________________________________________________________________*
+* Description:
+* See object description
+* Techname: ZCL_GOOD_RECEIPT_HELPER=======CM004
+*______________________________________________________________________________________*
+* Date of creation: 12.04.2023 16:40:51  / Author: MCHERIFI / Mourad CHERIFI (STMS)
+* Reference document:
+*  Description :  Charge des pièces jointes sur l'entrée marchandise
+*______________________________________________________________________________________*
+* Historic of modifications
+* Date / User name / Transport request / VYY-NN <Free>
+* Description:
+*______________________________________________________________________________________*
+
+  DATA: ls_fol_id TYPE soodk.
+  DATA: ls_obj_data TYPE sood1. "object definition and change attributes
+  DATA: lv_output_len TYPE integer. "Taille du fichier
+  DATA: ls_obj_id TYPE soodk. "definition of an object (key part)
+  DATA: lv_object_type TYPE so_obj_tp.
+  DATA: lt_objhead TYPE STANDARD TABLE OF soli.
+  DATA: lt_solix TYPE solix_tab.
+  DATA: lt_soli TYPE soli_tab.
+  DATA: ls_sofmk TYPE sofmk. "folder content data
+  DATA: ls_good_receipt_object TYPE borident.
+  DATA: ls_attach_obj TYPE borident.
+  DATA: lv_relation_type TYPE binreltyp.
+
+  " Get folder root id
+  CALL FUNCTION 'SO_FOLDER_ROOT_ID_GET'
+    EXPORTING
+      region                = 'B'
+    IMPORTING
+      folder_id             = ls_fol_id
+    EXCEPTIONS
+      communication_failure = 1
+      owner_not_exist       = 2
+      system_failure        = 3
+      x_error               = 4
+      OTHERS                = 5.
+
+  IF sy-subrc <> 0.
+    APPEND VALUE #( type = 'E'
+                    id = 'ZMM_GOOD_RECEIPT'
+                    number = 009 "Erreur pièce jointe : &1 &2 &3 &4
+                    message_v1 = 'SO_FOLDER_ROOT_ID_GET'
+                    message_v2 = |SUBRC = { sy-subrc }| )
+           TO return[].
+    RETURN.
+  ENDIF.
+
+
+  LOOP AT it_file_uploads[] ASSIGNING FIELD-SYMBOL(<file>).
+
+    CLEAR ls_obj_data.
+    CLEAR lt_solix[].
+    CLEAR lt_soli[].
+    CLEAR lt_objhead[].
+    CLEAR ls_attach_obj.
+    CLEAR ls_good_receipt_object.
+
+    IF <file>-is_url = abap_false. "Cas upload de fichier avec contenu
+
+      lv_object_type = 'EXT'. "Document PC
+      lv_relation_type = 'ATTA'. "Attachment
+
+      "Conversion XSTRING -> BINARY
+      CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
+        EXPORTING
+          buffer        = <file>-file_content "is_media_resource-value "xstring
+        IMPORTING
+          output_length = lv_output_len
+        TABLES
+          binary_tab    = lt_solix[].
+
+      "Conversion SOLIXTAB -> SOLITAB
+      CALL FUNCTION 'SO_SOLIXTAB_TO_SOLITAB'
+        EXPORTING
+          ip_solixtab = lt_solix[]
+        IMPORTING
+          ep_solitab  = lt_soli[].
+
+      "Calculer l'extension du fichier
+      SPLIT <file>-file_name AT '.' INTO TABLE DATA(lt_str).
+      DATA(lv_tokens) = lines( lt_str[] ).
+      IF lv_tokens > 0.
+        ASSIGN lt_str[ lv_tokens ] TO FIELD-SYMBOL(<str>).
+        IF sy-subrc = 0.
+          ls_obj_data-file_ext = to_upper( <str> ).
+        ENDIF.
+      ENDIF.
+
+      "ls_obj_data-objsns = c_o. "sensitivity of object (o-standard)
+      ls_obj_data-objlen = lv_output_len.
+
+      lt_objhead = VALUE #( ( line = '&SO_FILENAME=' && <file>-file_name )
+                            ( line = '&SO_FORMAT=BIN' )
+                            ( line = '&SO_CONTTYPE=' && <file>-mime_type ) ).
+    ELSE. "Cas URL
+      lv_object_type = 'URL'.
+      lv_relation_type = 'URL'. "Attachment
+
+      lt_soli[] = VALUE #( ( line = '&KEY&' && <file>-url ) ).
+    ENDIF.
+
+    ls_obj_data-objla = sy-langu. "language
+    ls_obj_data-objdes = <file>-file_name.
+    ls_obj_data-objsns = 'O'. "Sensitivité = Standard
+
+    "Insert file into the folder
+    CALL FUNCTION 'SO_OBJECT_INSERT'
+      EXPORTING
+        folder_id                  = ls_fol_id
+        object_type                = lv_object_type
+        object_hd_change           = ls_obj_data
+      IMPORTING
+        object_id                  = ls_obj_id
+      TABLES
+        objhead                    = lt_objhead[]
+        objcont                    = lt_soli[]
+      EXCEPTIONS
+        active_user_not_exist      = 1
+        communication_failure      = 2
+        component_not_available    = 3
+        dl_name_exist              = 4
+        folder_not_exist           = 5
+        folder_no_authorization    = 6
+        object_type_not_exist      = 7
+        operation_no_authorization = 8
+        owner_not_exist            = 9
+        parameter_error            = 10
+        substitute_not_active      = 11
+        substitute_not_defined     = 12
+        system_failure             = 13
+        x_error                    = 14
+        OTHERS                     = 15.
+
+    IF sy-subrc <> 0.
+      APPEND VALUE #( type = 'E'
+                      id = 'ZMM_GOOD_RECEIPT'
+                      number = 009 "Erreur pièce jointe : &1 &2 &3 &4
+                      message_v1 = 'SO_OBJECT_INSERT'
+                      message_v2 = |SUBRC = { sy-subrc }|
+                      message_v3 = |FILE = { <file>-file_name }| )
+             TO return[].
+      RETURN.
+    ENDIF.
+
+    "Créer la relation binaire entre le fichier et l'objet  A (Document entrée de marchandise) --> B (Fichier pièce jointe)
+    "Objet A
+    ls_good_receipt_object-objkey = iv_material_doc_number && iv_material_doc_year.
+    ls_good_receipt_object-objtype = 'BUS2017'. "Business Number = Mouvement de Stock
+
+
+    "Objet B
+    ls_sofmk-foltp = ls_fol_id-objtp.
+    ls_sofmk-folyr = ls_fol_id-objyr.
+    ls_sofmk-folno = ls_fol_id-objno.
+    ls_sofmk-doctp = ls_obj_id-objtp.
+    ls_sofmk-docyr = ls_obj_id-objyr.
+    ls_sofmk-docno = ls_obj_id-objno.
+
+    ls_attach_obj-objkey = ls_sofmk.
+    ls_attach_obj-objtype = 'MESSAGE'.
+    "CONCATENATE gs_fol_id-objtp gs_fol_id-objyr gs_fol_id-objno gs_obj_id-objtp gs_obj_id-objyr gs_obj_id-objno INTO ls_note-objkey.
+
+    CALL FUNCTION 'BINARY_RELATION_CREATE'
+      EXPORTING
+        obj_rolea      = ls_good_receipt_object
+        obj_roleb      = ls_attach_obj
+        relationtype   = lv_relation_type
+      EXCEPTIONS
+        no_model       = 1
+        internal_error = 2
+        unknown        = 3.
+
+    IF sy-subrc <> 0.
+      APPEND VALUE #( type = 'E'
+                      id = 'ZMM_GOOD_RECEIPT'
+                      number = 009 "Erreur pièce jointe : &1 &2 &3 &4
+                      message_v1 = 'BINARY_RELATION_CREATE'
+                      message_v2 = |SUBRC = { sy-subrc }|
+                      message_v3 = |FILE = { <file>-file_name }| )
+             TO return[].
+      RETURN.
+    ENDIF.
+
+    "Succès
+    APPEND VALUE #( type = 'S'
+                    id = 'ZMM_GOOD_RECEIPT'
+                    number = 010 "La pièce jointe &1 a été attachée au document article &2
+                    message_v1 = <file>-file_name
+                    message_v2 = iv_material_doc_number )
+           TO return[].
+
+  ENDLOOP.
+
+
+ENDMETHOD.
 
 
 METHOD get_batches_for_items.
@@ -123,68 +330,6 @@ METHOD get_batches_for_items.
       ENDIF.
     ENDLOOP.
   ENDIF.
-
-
-  "Lot
-*  SELECT ebeln, ebelp, matnr, werks, zzlot_achat FROM ekpo INTO TABLE @DATA(lt_ekpo)
-*  FOR ALL ENTRIES IN @lt_po_items[]
-*  WHERE ebeln = @lt_po_items-po_number
-*  AND   ebelp = @lt_po_items-po_item.
-*
-*  SELECT lot_achat, matnr, type FROM zmm_lot_achat
-*    INTO TABLE @DATA(lt_zmm_lot_achat)
-*    FOR ALL ENTRIES IN @lt_ekpo[]
-*    WHERE lot_achat = @lt_ekpo-zzlot_achat
-*    AND matnr = @lt_ekpo-matnr.
-*  IF lt_zmm_lot_achat[] IS NOT INITIAL.
-*    "Groupe de marchandise
-*    SELECT matnr, matkl FROM mara
-*      INTO TABLE @DATA(lt_mara)
-*      FOR ALL ENTRIES IN @lt_zmm_lot_achat[]
-*     WHERE matnr = @lt_zmm_lot_achat-matnr.
-*    IF lt_mara[] IS NOT INITIAL.
-*      "Check activation du lot achat
-*      SELECT * INTO TABLE @DATA(lt_zmm_activ_la)
-*        FROM zmm_activ_la
-*        FOR ALL ENTRIES IN @lt_mara[]
-*        WHERE matkl = @lt_mara-matkl.
-*      "Sélection des divisions valide
-*      SELECT low INTO TABLE @DATA(lt_tvarvc_zmm_speactiv_ls)
-*        FROM tvarvc
-*       WHERE name = 'ZMM_SPEACTIV_LS'.
-*
-*      "Vérification de la génération auto
-*      SELECT low INTO TABLE @DATA(lt_tvarvc_zlot_stock_automatic)
-*      FROM tvarvc
-*      WHERE name = 'ZLOT_STOCK_AUTOMATIC'.
-*    ENDIF.
-*  ENDIF.
-*
-*
-*  "Lot
-*  ASSIGN lt_ekpo[ ebeln = <item>-po_number ebelp = <item>-po_item ] TO FIELD-SYMBOL(<ekpo>).
-*  IF sy-subrc = 0.
-*    ASSIGN lt_zmm_lot_achat[ lot_achat = <ekpo>-zzlot_achat matnr = <ekpo>-matnr type = 'T' ] TO FIELD-SYMBOL(<zmm_lot_achat>).
-*    IF sy-subrc IS INITIAL.
-*      ASSIGN lt_mara[ matnr = <zmm_lot_achat>-matnr ] TO FIELD-SYMBOL(<mara>).
-*      IF sy-subrc IS INITIAL.
-*        ASSIGN lt_zmm_activ_la[ matkl = <mara>-matkl werks = <ekpo>-werks ] TO FIELD-SYMBOL(<zmm_activ_la>).
-*        IF sy-subrc IS INITIAL.
-*          ASSIGN lt_tvarvc_zmm_speactiv_ls[ low = <zmm_activ_la>-werks ] TO FIELD-SYMBOL(<tvarvc_zmm_speactiv_ls>).
-*          IF sy-subrc IS INITIAL.
-*            <result>-batch_number = <ekpo>-zzlot_achat+2(7).
-*          ENDIF.
-*
-*          ASSIGN lt_tvarvc_zlot_stock_automatic[ low = <zmm_activ_la>-werks ] TO FIELD-SYMBOL(<tvarvc_zlot_stock_automatic>).
-*          IF sy-subrc IS INITIAL AND <result>-batch_number IS NOT INITIAL.
-*            <result>-batch_number+7(3) = 'AAA'.
-*          ENDIF.
-*        ENDIF.
-*      ENDIF.
-*    ENDIF.
-*  ENDIF.
-
-
 
 
 ENDMETHOD.
@@ -275,15 +420,27 @@ METHOD perform_po_good_receipt.
 
   "Mouvement d'entrée de marchandise effectué avec succès
   IF lv_materialdocument IS NOT INITIAL.
+
     APPEND VALUE #( type = 'S'
                     id = 'ZMM_GOOD_RECEIPT'
                     number = 007
                     message_v1 = is_po_input-purchase_order_number
                     message_v2 = lv_materialdocument ) "Entrée de marchandise sur CA &1 effectuée avec succès (N°Doc &2)
            TO return[].
+
+    "Charger les pièces jointes (GOS)
+    IF is_po_input-files[] IS NOT INITIAL.
+      DATA(lt_return) = attach_good_receipt_documents( iv_material_doc_number = lv_materialdocument
+                                                       iv_material_doc_year = lv_matdocumentyear
+                                                       it_file_uploads    = is_po_input-files[] ).
+      APPEND LINES OF lt_return[] TO return[].
+    ENDIF.
+
   ENDIF.
 
-  "TODO : upload attachment files ???
+  IF line_exists( lt_return[ type = 'E' ] ). "Erreur lors du chargement des pièces jointes
+    CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+  ENDIF.
 
 ENDMETHOD.
 ENDCLASS.

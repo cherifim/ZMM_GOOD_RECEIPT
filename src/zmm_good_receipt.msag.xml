@@ -56,6 +56,18 @@
      <MSGNR>008</MSGNR>
      <TEXT>Commande d&apos;achat &amp;1 non trouvée</TEXT>
     </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>Erreur pièce jointe : &amp;1 &amp;2 &amp;3 &amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>F</SPRSL>
+     <ARBGB>ZMM_GOOD_RECEIPT</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>La pièce jointe &amp;1 a été attachée au document article &amp;2</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

@@ -14,6 +14,12 @@
    <DESCRIPTIONS>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_GOOD_RECEIPT_HELPER</CLSNAME>
+     <CMPNAME>ATTACH_GOOD_RECEIPT_DOCUMENTS</CMPNAME>
+     <LANGU>F</LANGU>
+     <DESCRIPT>Charge des pièces jointes sur l&apos;entrée marchandise</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_GOOD_RECEIPT_HELPER</CLSNAME>
      <CMPNAME>GET_BATCHES_FOR_ITEMS</CMPNAME>
      <LANGU>F</LANGU>
      <DESCRIPT>calcule le lot pour chaque poste de commande d&apos;achat</DESCRIPT>

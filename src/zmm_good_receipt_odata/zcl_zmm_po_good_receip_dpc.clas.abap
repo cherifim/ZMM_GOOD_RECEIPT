@@ -695,7 +695,7 @@ CLASS ZCL_ZMM_PO_GOOD_RECEIP_DPC IMPLEMENTATION.
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CREATE_ENTITY.
 *&----------------------------------------------------------------------------------------------*
 *&  Include           /IWBEP/DPC_TEMP_CRT_ENTITY_BASE
-*&* This class has been generated on 07.04.2023 13:40:16 in client 300
+*&* This class has been generated on 14.04.2023 13:56:14 in client 300
 *&*
 *&*       WARNING--> NEVER MODIFY THIS CLASS <--WARNING
 *&*   If you want to change the DPC implementation, use the
@@ -942,7 +942,7 @@ ENDCASE.
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~DELETE_ENTITY.
 *&----------------------------------------------------------------------------------------------*
 *&  Include           /IWBEP/DPC_TEMP_DEL_ENTITY_BASE
-*&* This class has been generated on 07.04.2023 13:40:16 in client 300
+*&* This class has been generated on 14.04.2023 13:56:14 in client 300
 *&*
 *&*       WARNING--> NEVER MODIFY THIS CLASS <--WARNING
 *&*   If you want to change the DPC implementation, use the
@@ -1096,7 +1096,7 @@ CASE lv_entityset_name.
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_ENTITY.
 *&-----------------------------------------------------------------------------------------------*
 *&  Include           /IWBEP/DPC_TEMP_GETENTITY_BASE
-*&* This class has been generated  on 07.04.2023 13:40:16 in client 300
+*&* This class has been generated  on 14.04.2023 13:56:14 in client 300
 *&*
 *&*       WARNING--> NEVER MODIFY THIS CLASS <--WARNING
 *&*   If you want to change the DPC implementation, use the
@@ -1389,7 +1389,7 @@ CASE lv_entityset_name.
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~GET_ENTITYSET.
 *&----------------------------------------------------------------------------------------------*
 *&  Include           /IWBEP/DPC_TMP_ENTITYSET_BASE
-*&* This class has been generated on 07.04.2023 13:40:16 in client 300
+*&* This class has been generated on 14.04.2023 13:56:14 in client 300
 *&*
 *&*       WARNING--> NEVER MODIFY THIS CLASS <--WARNING
 *&*   If you want to change the DPC implementation, use the
@@ -1702,7 +1702,7 @@ CASE lv_entityset_name.
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~UPDATE_ENTITY.
 *&----------------------------------------------------------------------------------------------*
 *&  Include           /IWBEP/DPC_TEMP_UPD_ENTITY_BASE
-*&* This class has been generated on 07.04.2023 13:40:16 in client 300
+*&* This class has been generated on 14.04.2023 13:56:14 in client 300
 *&*
 *&*       WARNING--> NEVER MODIFY THIS CLASS <--WARNING
 *&*   If you want to change the DPC implementation, use the
@@ -2442,20 +2442,20 @@ DATA lt_selopt TYPE ddshselops.
 DATA ls_selopt LIKE LINE OF lt_selopt.
 DATA ls_filter TYPE /iwbep/s_mgw_select_option.
 DATA ls_filter_range TYPE /iwbep/s_cod_select_option.
-DATA lr_ebeln LIKE RANGE OF ls_converted_keys-ebeln.
-DATA ls_ebeln LIKE LINE OF lr_ebeln.
-DATA lr_bsart LIKE RANGE OF ls_converted_keys-bsart.
-DATA ls_bsart LIKE LINE OF lr_bsart.
-DATA lr_bstyp LIKE RANGE OF ls_converted_keys-bstyp.
-DATA ls_bstyp LIKE LINE OF lr_bstyp.
-DATA lr_bedat LIKE RANGE OF ls_converted_keys-bedat.
-DATA ls_bedat LIKE LINE OF lr_bedat.
-DATA lr_ekgrp LIKE RANGE OF ls_converted_keys-ekgrp.
-DATA ls_ekgrp LIKE LINE OF lr_ekgrp.
-DATA lr_ekorg LIKE RANGE OF ls_converted_keys-ekorg.
-DATA ls_ekorg LIKE LINE OF lr_ekorg.
 DATA lr_lifnr LIKE RANGE OF ls_converted_keys-lifnr.
 DATA ls_lifnr LIKE LINE OF lr_lifnr.
+DATA lr_ekorg LIKE RANGE OF ls_converted_keys-ekorg.
+DATA ls_ekorg LIKE LINE OF lr_ekorg.
+DATA lr_ekgrp LIKE RANGE OF ls_converted_keys-ekgrp.
+DATA ls_ekgrp LIKE LINE OF lr_ekgrp.
+DATA lr_bedat LIKE RANGE OF ls_converted_keys-bedat.
+DATA ls_bedat LIKE LINE OF lr_bedat.
+DATA lr_bstyp LIKE RANGE OF ls_converted_keys-bstyp.
+DATA ls_bstyp LIKE LINE OF lr_bstyp.
+DATA lr_bsart LIKE RANGE OF ls_converted_keys-bsart.
+DATA ls_bsart LIKE LINE OF lr_bsart.
+DATA lr_ebeln LIKE RANGE OF ls_converted_keys-ebeln.
+DATA ls_ebeln LIKE LINE OF lr_ebeln.
 DATA lt_result_list TYPE /iwbep/if_sb_gendpc_shlp_data=>tt_result_list.
 DATA lv_next TYPE i VALUE 1.
 DATA ls_entityset LIKE LINE OF et_entityset.
@@ -2508,87 +2508,19 @@ ENDIF.
 LOOP AT lt_filter_select_options INTO ls_filter.
 
   CASE ls_filter-property.
-    WHEN 'EBELN'.              " Equivalent to 'PurchaseOrderNumber' property in the service
+    WHEN 'LIFNR'.              " Equivalent to 'VendorAccountNumber' property in the service
       lo_filter->convert_select_option(
         EXPORTING
           is_select_option = ls_filter
         IMPORTING
-          et_select_option = lr_ebeln ).
+          et_select_option = lr_lifnr ).
 
-      LOOP AT lr_ebeln INTO ls_ebeln.
-        ls_selopt-high = ls_ebeln-high.
-        ls_selopt-low = ls_ebeln-low.
-        ls_selopt-option = ls_ebeln-option.
-        ls_selopt-sign = ls_ebeln-sign.
-        ls_selopt-shlpfield = 'EBELN'.
-        ls_selopt-shlpname = 'MEKKL'.
-        APPEND ls_selopt TO lt_selopt.
-        CLEAR ls_selopt.
-      ENDLOOP.
-    WHEN 'BSART'.              " Equivalent to 'OrderType' property in the service
-      lo_filter->convert_select_option(
-        EXPORTING
-          is_select_option = ls_filter
-        IMPORTING
-          et_select_option = lr_bsart ).
-
-      LOOP AT lr_bsart INTO ls_bsart.
-        ls_selopt-high = ls_bsart-high.
-        ls_selopt-low = ls_bsart-low.
-        ls_selopt-option = ls_bsart-option.
-        ls_selopt-sign = ls_bsart-sign.
-        ls_selopt-shlpfield = 'BSART'.
-        ls_selopt-shlpname = 'MEKKL'.
-        APPEND ls_selopt TO lt_selopt.
-        CLEAR ls_selopt.
-      ENDLOOP.
-    WHEN 'BSTYP'.              " Equivalent to 'PurchDocCategory' property in the service
-      lo_filter->convert_select_option(
-        EXPORTING
-          is_select_option = ls_filter
-        IMPORTING
-          et_select_option = lr_bstyp ).
-
-      LOOP AT lr_bstyp INTO ls_bstyp.
-        ls_selopt-high = ls_bstyp-high.
-        ls_selopt-low = ls_bstyp-low.
-        ls_selopt-option = ls_bstyp-option.
-        ls_selopt-sign = ls_bstyp-sign.
-        ls_selopt-shlpfield = 'BSTYP'.
-        ls_selopt-shlpname = 'MEKKL'.
-        APPEND ls_selopt TO lt_selopt.
-        CLEAR ls_selopt.
-      ENDLOOP.
-    WHEN 'BEDAT'.              " Equivalent to 'PurchDocDate' property in the service
-      lo_filter->convert_select_option(
-        EXPORTING
-          is_select_option = ls_filter
-        IMPORTING
-          et_select_option = lr_bedat ).
-
-      LOOP AT lr_bedat INTO ls_bedat.
-        ls_selopt-high = ls_bedat-high.
-        ls_selopt-low = ls_bedat-low.
-        ls_selopt-option = ls_bedat-option.
-        ls_selopt-sign = ls_bedat-sign.
-        ls_selopt-shlpfield = 'BEDAT'.
-        ls_selopt-shlpname = 'MEKKL'.
-        APPEND ls_selopt TO lt_selopt.
-        CLEAR ls_selopt.
-      ENDLOOP.
-    WHEN 'EKGRP'.              " Equivalent to 'PurchGroup' property in the service
-      lo_filter->convert_select_option(
-        EXPORTING
-          is_select_option = ls_filter
-        IMPORTING
-          et_select_option = lr_ekgrp ).
-
-      LOOP AT lr_ekgrp INTO ls_ekgrp.
-        ls_selopt-high = ls_ekgrp-high.
-        ls_selopt-low = ls_ekgrp-low.
-        ls_selopt-option = ls_ekgrp-option.
-        ls_selopt-sign = ls_ekgrp-sign.
-        ls_selopt-shlpfield = 'EKGRP'.
+      LOOP AT lr_lifnr INTO ls_lifnr.
+        ls_selopt-high = ls_lifnr-high.
+        ls_selopt-low = ls_lifnr-low.
+        ls_selopt-option = ls_lifnr-option.
+        ls_selopt-sign = ls_lifnr-sign.
+        ls_selopt-shlpfield = 'LIFNR'.
         ls_selopt-shlpname = 'MEKKL'.
         APPEND ls_selopt TO lt_selopt.
         CLEAR ls_selopt.
@@ -2610,19 +2542,87 @@ LOOP AT lt_filter_select_options INTO ls_filter.
         APPEND ls_selopt TO lt_selopt.
         CLEAR ls_selopt.
       ENDLOOP.
-    WHEN 'LIFNR'.              " Equivalent to 'VendorAccountNumber' property in the service
+    WHEN 'EKGRP'.              " Equivalent to 'PurchGroup' property in the service
       lo_filter->convert_select_option(
         EXPORTING
           is_select_option = ls_filter
         IMPORTING
-          et_select_option = lr_lifnr ).
+          et_select_option = lr_ekgrp ).
 
-      LOOP AT lr_lifnr INTO ls_lifnr.
-        ls_selopt-high = ls_lifnr-high.
-        ls_selopt-low = ls_lifnr-low.
-        ls_selopt-option = ls_lifnr-option.
-        ls_selopt-sign = ls_lifnr-sign.
-        ls_selopt-shlpfield = 'LIFNR'.
+      LOOP AT lr_ekgrp INTO ls_ekgrp.
+        ls_selopt-high = ls_ekgrp-high.
+        ls_selopt-low = ls_ekgrp-low.
+        ls_selopt-option = ls_ekgrp-option.
+        ls_selopt-sign = ls_ekgrp-sign.
+        ls_selopt-shlpfield = 'EKGRP'.
+        ls_selopt-shlpname = 'MEKKL'.
+        APPEND ls_selopt TO lt_selopt.
+        CLEAR ls_selopt.
+      ENDLOOP.
+    WHEN 'BEDAT'.              " Equivalent to 'PurchDocDate' property in the service
+      lo_filter->convert_select_option(
+        EXPORTING
+          is_select_option = ls_filter
+        IMPORTING
+          et_select_option = lr_bedat ).
+
+      LOOP AT lr_bedat INTO ls_bedat.
+        ls_selopt-high = ls_bedat-high.
+        ls_selopt-low = ls_bedat-low.
+        ls_selopt-option = ls_bedat-option.
+        ls_selopt-sign = ls_bedat-sign.
+        ls_selopt-shlpfield = 'BEDAT'.
+        ls_selopt-shlpname = 'MEKKL'.
+        APPEND ls_selopt TO lt_selopt.
+        CLEAR ls_selopt.
+      ENDLOOP.
+    WHEN 'BSTYP'.              " Equivalent to 'PurchDocCategory' property in the service
+      lo_filter->convert_select_option(
+        EXPORTING
+          is_select_option = ls_filter
+        IMPORTING
+          et_select_option = lr_bstyp ).
+
+      LOOP AT lr_bstyp INTO ls_bstyp.
+        ls_selopt-high = ls_bstyp-high.
+        ls_selopt-low = ls_bstyp-low.
+        ls_selopt-option = ls_bstyp-option.
+        ls_selopt-sign = ls_bstyp-sign.
+        ls_selopt-shlpfield = 'BSTYP'.
+        ls_selopt-shlpname = 'MEKKL'.
+        APPEND ls_selopt TO lt_selopt.
+        CLEAR ls_selopt.
+      ENDLOOP.
+    WHEN 'BSART'.              " Equivalent to 'OrderType' property in the service
+      lo_filter->convert_select_option(
+        EXPORTING
+          is_select_option = ls_filter
+        IMPORTING
+          et_select_option = lr_bsart ).
+
+      LOOP AT lr_bsart INTO ls_bsart.
+        ls_selopt-high = ls_bsart-high.
+        ls_selopt-low = ls_bsart-low.
+        ls_selopt-option = ls_bsart-option.
+        ls_selopt-sign = ls_bsart-sign.
+        ls_selopt-shlpfield = 'BSART'.
+        ls_selopt-shlpname = 'MEKKL'.
+        APPEND ls_selopt TO lt_selopt.
+        CLEAR ls_selopt.
+      ENDLOOP.
+    WHEN 'EBELN'.              " Equivalent to 'PurchaseOrderNumber' property in the service
+      lo_filter->convert_select_option(
+        EXPORTING
+          is_select_option = ls_filter
+        IMPORTING
+          et_select_option = lr_ebeln ).
+
+      LOOP AT lr_ebeln INTO ls_ebeln.
+        ls_selopt-high = ls_ebeln-high.
+        ls_selopt-low = ls_ebeln-low.
+        ls_selopt-option = ls_ebeln-option.
+        ls_selopt-sign = ls_ebeln-sign.
+        ls_selopt-shlpfield = 'EBELN'.
         ls_selopt-shlpname = 'MEKKL'.
         APPEND ls_selopt TO lt_selopt.
         CLEAR ls_selopt.
