@@ -12,7 +12,6 @@ public section.
       END OF tys_purchase_order .
   types:
     tyt_purchase_orders TYPE STANDARD TABLE OF tys_purchase_order WITH DEFAULT KEY .
-
   types:
     BEGIN OF tys_purchase_order_item,
         data    TYPE zmm_gr_s_po_item_odata,
@@ -20,15 +19,13 @@ public section.
       END OF tys_purchase_order_item .
   types:
     tyt_purchase_order_items TYPE STANDARD TABLE OF tys_purchase_order_item WITH DEFAULT KEY .
-
   types:
     BEGIN OF tys_file_upload,
-        data    TYPE zmm_gr_s_file_upload,
+        data    TYPE zmm_gr_s_file_upload_odata,
         request TYPE /iwbep/if_mgw_appl_types=>ty_s_changeset_request,
       END OF tys_file_upload .
   types:
     tyt_file_uploads TYPE STANDARD TABLE OF tys_file_upload WITH DEFAULT KEY .
-
 
   methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN
     redefinition .
@@ -115,6 +112,8 @@ protected section.
     redefinition .
   methods STORAGELOCATIONS_GET_ENTITYSET
     redefinition .
+  methods FILEUPLOADSET_CREATE_ENTITY
+    redefinition .
 private section.
 ENDCLASS.
 
@@ -162,10 +161,8 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~changeset_process.
 
     lo_request_context ?= <changeset_req>-request_context.
 
-    IF <changeset_req>-operation_type = 'PE' OR "MERGE
-       <changeset_req>-operation_type = 'UE'. "UPDATE
-
-      IF <changeset_req>-operation_type = 'PE'. "MERGE
+    CASE <changeset_req>-operation_type.
+      WHEN 'PE'. "MERGE
         "Calculate merged data (modified data from UI5 and current data in SAP)
         me->/iwbep/if_mgw_appl_srv_runtime~patch_entity(
           EXPORTING
@@ -178,67 +175,64 @@ METHOD /iwbep/if_mgw_appl_srv_runtime~changeset_process.
             io_tech_request_context      = lo_request_context
           IMPORTING
             er_entity                    = lr_data_ref ).
+      WHEN 'UE'. "UPDATE
+        me->/iwbep/if_mgw_appl_srv_runtime~update_entity(
+          EXPORTING
+            iv_entity_name               = lo_request_context->get_request_details( )-source_entity
+            iv_entity_set_name           = lo_request_context->get_request_details( )-source_entity_set
+            iv_source_name               = lo_request_context->get_request_details( )-source_entity
+            io_data_provider             = <changeset_req>-entry_provider
+            it_key_tab                   = lo_request_context->get_request_details( )-key_tab[]
+            it_navigation_path           = lo_request_context->get_request_details( )-navigation_path
+            io_tech_request_context      = lo_request_context
+          IMPORTING
+            er_entity                    = lr_data_ref ).
+      WHEN 'CE'. "CREATE
+        me->/iwbep/if_mgw_appl_srv_runtime~create_entity(
+          EXPORTING
+            iv_entity_name               = lo_request_context->get_request_details( )-source_entity
+            iv_entity_set_name           = lo_request_context->get_request_details( )-source_entity_set
+            iv_source_name               = lo_request_context->get_request_details( )-source_entity
+            io_data_provider             = <changeset_req>-entry_provider
+            it_key_tab                   = lo_request_context->get_request_details( )-key_tab[]
+            it_navigation_path           = lo_request_context->get_request_details( )-navigation_path
+            io_tech_request_context      = lo_request_context
+          IMPORTING
+            er_entity                    = lr_data_ref ).
+      WHEN OTHERS.
+    ENDCASE.
 
-        ASSIGN lr_data_ref->* TO FIELD-SYMBOL(<data>).
-      ENDIF.
+    ASSIGN lr_data_ref->* TO FIELD-SYMBOL(<data>).
 
+    CASE lo_request_context->get_request_details( )-source_entity.
 
-      CASE lo_request_context->get_request_details( )-source_entity.
+      WHEN 'PurchaseOrder'. "Collect PurchaseOrder entities
+        APPEND INITIAL LINE TO lt_purchase_order_data[] ASSIGNING FIELD-SYMBOL(<purchase_order_data>).
+        <purchase_order_data>-data = <data>.
+        <purchase_order_data>-request = <changeset_req>.
 
-        WHEN 'PurchaseOrder'.
-          APPEND INITIAL LINE TO lt_purchase_order_data[] ASSIGNING FIELD-SYMBOL(<purchase_order_data>). "Collect PurchaseOrder entities
-          IF <changeset_req>-operation_type = 'PE'. "MERGE
-            <purchase_order_data>-data = <data>.
-          ELSE. "UPDATE
-            <changeset_req>-entry_provider->read_entry_data( IMPORTING es_data = <purchase_order_data>-data ).
-          ENDIF.
-          <purchase_order_data>-request = <changeset_req>.
+      WHEN 'PurchaseOrderItem'. "Collect PurchaseOrderItem entities
+        APPEND INITIAL LINE TO lt_purchase_order_item_data[] ASSIGNING FIELD-SYMBOL(<purchase_order_item_data>).
+        <purchase_order_item_data>-data = <data>.
+        <purchase_order_item_data>-request = <changeset_req>.
 
-        WHEN 'PurchaseOrderItem'.
-          APPEND INITIAL LINE TO lt_purchase_order_item_data[] ASSIGNING FIELD-SYMBOL(<purchase_order_item_data>). "Collect PurchaseOrderItem entities
-          IF <changeset_req>-operation_type = 'PE'. "MERGE
-            <purchase_order_item_data>-data = <data>.
-          ELSE. "UPDATE
-            <changeset_req>-entry_provider->read_entry_data( IMPORTING es_data = <purchase_order_item_data>-data ).
-          ENDIF.
-          <purchase_order_item_data>-request = <changeset_req>.
+      WHEN 'FileUpload'. "Collect FileUpload entities
+        APPEND INITIAL LINE TO lt_file_upload_data[] ASSIGNING FIELD-SYMBOL(<file_upload_data>).
+        <file_upload_data>-data = <data>.
+        <file_upload_data>-request = <changeset_req>.
 
-        WHEN OTHERS. "Else execute the corresponding UPDATE_ENTITY method
-          me->/iwbep/if_mgw_appl_srv_runtime~update_entity(
-            EXPORTING
-              iv_entity_name               = lo_request_context->get_request_details( )-source_entity
-              iv_entity_set_name           = lo_request_context->get_request_details( )-source_entity_set
-              iv_source_name               = lo_request_context->get_request_details( )-source_entity
-              io_data_provider             = <changeset_req>-entry_provider
-              it_key_tab                   = lo_request_context->get_request_details( )-key_tab[]
-              it_navigation_path           = lo_request_context->get_request_details( )-navigation_path
-              io_tech_request_context      = lo_request_context
-            IMPORTING
-              er_entity                    = lr_data_ref ).
+      WHEN OTHERS.
 
-          ASSIGN lr_data_ref->* TO <data>.
+        CLEAR: ls_changeset_response.
+        ls_changeset_response-operation_no = <changeset_req>-operation_no.
 
-          CLEAR: ls_changeset_response.
-          ls_changeset_response-operation_no = <changeset_req>-operation_no.
+        copy_data_to_ref( EXPORTING is_data = <data>
+                          CHANGING cr_data = ls_changeset_response-entity_data ).
 
-          copy_data_to_ref( EXPORTING is_data = <data>
-                            CHANGING cr_data = ls_changeset_response-entity_data ).
+        APPEND ls_changeset_response TO ct_changeset_response[].
 
-          APPEND ls_changeset_response TO ct_changeset_response[].
+    ENDCASE.
 
-      ENDCASE.
-
-    ENDIF.
-
-    IF <changeset_req>-operation_type = 'CE'. "CREATE ENTITY
-      CASE lo_request_context->get_request_details( )-source_entity.
-        WHEN 'FileUpload'.
-          APPEND INITIAL LINE TO lt_file_upload_data[] ASSIGNING FIELD-SYMBOL(<file_upload_data>). "Collect FileUpload entities
-          <changeset_req>-entry_provider->read_entry_data( IMPORTING es_data = <file_upload_data>-data ).
-          <file_upload_data>-request = <changeset_req>.
-        WHEN OTHERS.
-      ENDCASE.
-    ENDIF.
 
   ENDLOOP.
 
@@ -436,6 +430,12 @@ ENDMETHOD.
 
 METHOD dummyforsmartfie_update_entity.
   io_data_provider->read_entry_data( IMPORTING es_data = er_entity ). "Do nothing
+ENDMETHOD.
+
+
+METHOD fileuploadset_create_entity.
+  "Create not implemented - see CHANGESET_PROCESS
+  io_data_provider->read_entry_data( IMPORTING es_data = er_entity ).
 ENDMETHOD.
 
 

@@ -59,7 +59,7 @@ TT_PLANTSH type standard table of TS_PLANTSH .
   types:
 TT_PURCHASEORDERSH type standard table of TS_PURCHASEORDERSH .
   types:
-     TS_FILEUPLOAD type ZMM_GR_S_FILE_UPLOAD .
+     TS_FILEUPLOAD type ZMM_GR_S_FILE_UPLOAD_ODATA .
   types:
 TT_FILEUPLOAD type standard table of TS_FILEUPLOAD .
 
@@ -476,7 +476,7 @@ lo_property->/iwbep/if_mgw_odata_annotatabl~create_annotation( 'sap' )->add(
         iv_key      = 'unicode'
         iv_value    = 'false' ).
 
-lo_entity_type->bind_structure( iv_structure_name   = 'ZMM_GR_S_FILE_UPLOAD'
+lo_entity_type->bind_structure( iv_structure_name   = 'ZMM_GR_S_FILE_UPLOAD_ODATA'
                                 iv_bind_conversions = 'X' ). "#EC NOTEXT
 
 
@@ -1700,7 +1700,7 @@ lo_entity_set->set_filter_required( abap_false ).
 *&---------------------------------------------------------------------*
 
 
-  CONSTANTS: lc_gen_date_time TYPE timestamp VALUE '20230414115612'.                  "#EC NOTEXT
+  CONSTANTS: lc_gen_date_time TYPE timestamp VALUE '20230418142014'.                  "#EC NOTEXT
   rv_last_modified = super->get_last_modified( ).
   IF rv_last_modified LT lc_gen_date_time.
     rv_last_modified = lc_gen_date_time.
